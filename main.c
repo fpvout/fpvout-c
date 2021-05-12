@@ -1,3 +1,8 @@
+/*
+ * Copyright 2021 Google LLC.
+ * SPDX-License-Identifier: Apache-2.0
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
