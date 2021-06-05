@@ -14,7 +14,7 @@
 #define USB_INTERFACE 3
 #define USB_ENDPOINT_VIDEO_IN 0x84
 #define USB_ENDPOINT_CONTROL_OUT 0x03
-#define USB_BUFFER_SIZE_BYTES 1024
+#define USB_BUFFER_SIZE_BYTES 131072
 
 int main(int _argc, char** argv)
 {
@@ -61,9 +61,9 @@ int main(int _argc, char** argv)
 	}
 
 	// Send magic
-	unsigned char MAGIC[] = { 0x52, 0x4d, 0x56, 0x54 };
+	unsigned char MAGIC[] = { 'R', 'M', 'V', 'T' };
 	int MAGIC_LENGTH = 4;
-	unsigned int MAGIC_TIMEOUT_MS = 500;
+	unsigned int MAGIC_TIMEOUT_MS = 200;
 	r = libusb_bulk_transfer(dev, USB_ENDPOINT_CONTROL_OUT, MAGIC, MAGIC_LENGTH, NULL, MAGIC_TIMEOUT_MS);
 	if (r != 0 && r != LIBUSB_ERROR_TIMEOUT) {
 		fprintf(stderr, "unable to send magic: %s\n", libusb_strerror(r));
