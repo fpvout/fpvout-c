@@ -67,7 +67,7 @@ int main(int _argc, char** argv)
 	r = libusb_bulk_transfer(dev, USB_ENDPOINT_CONTROL_OUT, MAGIC, MAGIC_LENGTH, NULL, MAGIC_TIMEOUT_MS);
 	if (r != 0 && r != LIBUSB_ERROR_TIMEOUT) {
 		fprintf(stderr, "unable to send magic: %s\n", libusb_strerror(r));
-		exit(1);
+		exit(r);
 	}
 
 	// Loooooooooooop
@@ -78,7 +78,11 @@ int main(int _argc, char** argv)
 		libusb_bulk_transfer(dev, USB_ENDPOINT_VIDEO_IN, buf, USB_BUFFER_SIZE_BYTES, &bytes_read, 0);
 		fwrite(buf, sizeof(char), bytes_read, stdout);
 		if (bytes_read == 0) {
-			break;
+			r = libusb_bulk_transfer(dev, USB_ENDPOINT_CONTROL_OUT, MAGIC, MAGIC_LENGTH, NULL, MAGIC_TIMEOUT_MS); // retry to activate connection. useful when you change lipo :)
+			if (r < 0 && r != LIBUSB_ERROR_TIMEOUT) {
+				fprintf(stderr, "unable to send magic: %s\n", libusb_strerror(r));
+        exit(r);
+			}
 		}
 	}
 
