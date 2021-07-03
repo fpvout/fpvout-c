@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <libusb-1.0/libusb.h>
+#include <pthread.h>
 
 #define USB_VID 0x2ca3
 #define USB_PID 0x1f
@@ -15,6 +16,20 @@
 #define USB_ENDPOINT_VIDEO_IN 0x84
 #define USB_ENDPOINT_CONTROL_OUT 0x03
 #define USB_BUFFER_SIZE_BYTES 1024
+
+unsigned char MAGIC[] = { 0x52, 0x4d, 0x56, 0x54 };
+int MAGIC_LENGTH = 4;
+unsigned int MAGIC_TIMEOUT_MS = 500;
+
+void* send_magic(void * dev) {
+	for (;;) {
+		int r = libusb_bulk_transfer((libusb_device_handle*)dev, USB_ENDPOINT_CONTROL_OUT, MAGIC, MAGIC_LENGTH, NULL, MAGIC_TIMEOUT_MS);
+		if (r != 0 && r != LIBUSB_ERROR_TIMEOUT) {
+			fprintf(stderr, "unable to send magic: %s\n", libusb_strerror(r));
+		}
+		sleep(5000);
+	}
+}
 
 int main(int _argc, char** argv)
 {
@@ -61,14 +76,8 @@ int main(int _argc, char** argv)
 	}
 
 	// Send magic
-	unsigned char MAGIC[] = { 0x52, 0x4d, 0x56, 0x54 };
-	int MAGIC_LENGTH = 4;
-	unsigned int MAGIC_TIMEOUT_MS = 500;
-	r = libusb_bulk_transfer(dev, USB_ENDPOINT_CONTROL_OUT, MAGIC, MAGIC_LENGTH, NULL, MAGIC_TIMEOUT_MS);
-	if (r != 0 && r != LIBUSB_ERROR_TIMEOUT) {
-		fprintf(stderr, "unable to send magic: %s\n", libusb_strerror(r));
-		exit(r);
-	}
+	pthread_t magic_thread;
+	pthread_create(&magic_thread, NULL, send_magic, (void*)NULL);
 
 	// Loooooooooooop
 	unsigned char* buf = calloc(USB_BUFFER_SIZE_BYTES, sizeof(char));
