@@ -77,7 +77,7 @@ int main(int _argc, char** argv)
 
 	// Send magic
 	pthread_t magic_thread;
-	pthread_create(&magic_thread, NULL, send_magic, (void*)NULL);
+	pthread_create(&magic_thread, NULL, send_magic, dev);
 
 	// Loooooooooooop
 	unsigned char* buf = calloc(USB_BUFFER_SIZE_BYTES, sizeof(char));
