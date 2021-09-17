@@ -8,11 +8,8 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    
     - uses: actions/checkout@v2
     - name: Set outputs
       id: vars
@@ -21,12 +18,3 @@ jobs:
       run: sudo apt-get install -y libusb-dev libusb-1.0-0-dev build-essential ffmpeg
     - name: make
       run: make
-    - name: publish
-      uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
-        prerelease: false
-        title: "Build @ ${{ steps.vars.outputs.sha_short }}"
-        files: |
-          fpv-video-out
